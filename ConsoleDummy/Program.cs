@@ -10,14 +10,14 @@ namespace ConsoleDummy
         static async Task Main(string[] args)
         {
             string urlConsulta = "http://dummy.restapiexample.com/api/v1/employees";
-            string urlBackend = "https://localhost:44335/api/Dummies";
+            string urlBackend = "https://localhost:80/api/Dummies";
 
             var helper = new Helper();
 
             var response = await helper.CallRestService(urlConsulta, string.Empty, Constante.GET); 
             
             if (!response.Ok)
-                throw new ArgumentException("Servicio Dummy Respondio de forma Incorrecta");
+                Console.WriteLine("Servicio Dummy Respondio de forma Incorrecta");
 
             var listaDummy = JsonConvert.DeserializeObject<Respuesta>(response.Resultado);
 
@@ -27,8 +27,8 @@ namespace ConsoleDummy
                 var usuario = DummyDto.dummyMap(item);
                 var insert = await helper.CallRestService(urlBackend, JsonConvert.SerializeObject(usuario), Constante.POST); 
                 
-                if (!response.Ok)
-                    throw new ArgumentException("No se pudo Insertar");
+                if (!insert.Ok)
+                    Console.WriteLine($"No se pudo Insertar el registro con el ID {item.id}.");
 
                 var responseInsert = JsonConvert.DeserializeObject<Dummy>(response.Resultado);
 
