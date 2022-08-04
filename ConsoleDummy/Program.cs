@@ -9,12 +9,13 @@ namespace ConsoleDummy
     {
         static async Task Main(string[] args)
         {
-            string urlConsulta = "http://dummy.restapiexample.com/api/v1/employees";
-            string urlBackend = "https://localhost:80/api/Dummies";
+            string urlDummyInfo = "http://dummy.restapiexample.com/api/v1/employees";
+            int port = 44335;
+            string urlBackend = $"https://localhost:{port}/api/Dummies";
 
             var helper = new Helper();
 
-            var response = await helper.CallRestService(urlConsulta, string.Empty, Constante.GET); 
+            var response = await helper.CallRestService(urlDummyInfo, string.Empty, Constante.GET); 
             
             if (!response.Ok)
                 Console.WriteLine("Servicio Dummy Respondio de forma Incorrecta");
@@ -24,13 +25,16 @@ namespace ConsoleDummy
             foreach (var item in listaDummy.data)
             {
 
-                var usuario = DummyDto.dummyMap(item);
-                var insert = await helper.CallRestService(urlBackend, JsonConvert.SerializeObject(usuario), Constante.POST); 
+                var dummyDTO = DummyDtoHelpers.dummyMap(item);
+                var responseInsert = await helper.CallRestService(urlBackend, JsonConvert.SerializeObject(dummyDTO), Constante.POST); 
                 
-                if (!insert.Ok)
+                if (!responseInsert.Ok)
                     Console.WriteLine($"No se pudo Insertar el registro con el ID {item.id}.");
 
-                var responseInsert = JsonConvert.DeserializeObject<Dummy>(response.Resultado);
+                var dummy = JsonConvert.DeserializeObject<Dummy>(responseInsert.Resultado);
+                
+                if(dummy.id > 0)
+                    Console.WriteLine($"Se Creo a {dummy.name}.");
 
             }
 
